@@ -1,0 +1,62 @@
+---
+title: "simulation"
+author: "yz5248"
+date: "2025-10-30"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+
+```{r}
+source("sim_mean_sd.R")
+
+sim_mean_sd(n_subj = 400)
+```
+
+can i "verify" the central limit theorem
+```{r}
+output = vector("list", 100)
+
+for (i in 1:100) {
+  output[[i]] = sim_mean_sd(30)
+}
+
+output
+
+sim_results = bind_rows(output)
+
+output |>
+  bind_rows() |>
+  ggplot(aes(x = mu_hat)) +
+  geom_density()
+```
+
+
+try to repeat with a map statement
+```{r}
+sim_results_df = 
+  expand_grid(
+    sample_size = 30,
+    iter = 1:100
+  ) |>
+  mutate(
+    results = map(sample_size, sim_mean_sd)
+  ) |>
+  unnest(results)
+```
+
+```{r}
+sim_results_df = 
+  expand_grid(
+    iter = 1:100,
+    sample_size = c(30, 60, 90, 120)
+  ) |>
+  mutate(
+    results = map(sample_size, sim_mean_sd)
+  ) |>
+  unnest(results)
+```
