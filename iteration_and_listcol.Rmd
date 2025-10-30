@@ -1,0 +1,107 @@
+---
+title: "iteration_and_listcols"
+author: "yz5248"
+date: "2025-10-28"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+```
+
+```{r}
+ 
+```
+
+```{r}
+list_normals = 
+  list(
+    a = rnorm(30, mean = 3, sd = 1),
+    b = rnorm(30, mean = 30, sd = 1),
+    c = rnorm(30, mean = 3, sd = 10),
+    d = rnorm(30, mean = -3, sd = 4)
+  )
+```
+
+```{r}
+source("mean_and_sd.R")
+```
+
+```{r}
+output = vector("list", length = 4)
+
+for (i in 1:4) {
+  output[[i]] = mean_and_sd(list_normals[[i]])
+  
+}
+```
+
+# use map to do the same thing
+```{r}
+output = map(list_normals, mean_and_sd)
+```
+
+```{r}
+map_dfr(list_normals, mean_and_sd, .id = "sample")
+
+map_dbl(list_normals, median)
+```
+
+```{r}
+listcol_df = 
+  tibble(
+    name = c("a", "b", "c", "d"),
+    sample = list_normals
+  )
+```
+
+
+```{r}
+pull(listcol_df, name)
+pull(listcol_df, sample)
+
+mean_and_sd(pull(listcol_df, sample)[[1]])
+mean_and_sd(pull(listcol_df, sample)[[2]])
+mean_and_sd(pull(listcol_df, sample)[[3]])
+mean_and_sd(pull(listcol_df, sample)[[4]])
+```
+
+```{r}
+map(pull(listcol_df, sample),, mean_and_sd)
+```
+
+```{r}
+listcol_df = 
+  listcol_df |>
+  mutate(
+    summary = map(sample, mean_and_sd)
+  )
+
+pull(listcol_df, summary)
+```
+
+```{r}
+listcol_df |>
+  select(-sample) |>
+  unnest(summary)
+```
+
+```{r}
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+nsduh_html = read_html(nsduh_url)
+```
+
+```{r}
+library(ggplot2)
+library(p8105.datasets)
+data("weather_df")
+
+weather_df |>
+  filter(name == "CentralPark_NY") |>
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point() +
+  geom_ ()
+```
+
