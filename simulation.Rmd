@@ -8,12 +8,11 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggplot2)
+source("sim_mean_sd.R")
 ```
 
 
 ```{r}
-source("sim_mean_sd.R")
-
 sim_mean_sd(n_subj = 400)
 ```
 
