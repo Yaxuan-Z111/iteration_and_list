@@ -59,3 +59,98 @@ sim_results_df =
   ) |>
   unnest(results)
 ```
+
+```{r}
+sim_results_df |>
+  mutate(
+    sample_size = str_c("n = ", sample_size),
+    sample_size = fct_inorder(sample_size)
+  ) |>
+  ggplot(aes(x = sample_size, y = mu_hat)) +
+  geom_violin()
+```
+
+```{r}
+sim_results_df |>
+  group_by(sample_size) |>
+  summarise(
+    emp_mean = mean(mu_hat),
+    emp_se = sd(mu_hat)
+  )
+```
+
+
+# Simple Linear Regression
+```{r}
+sim_df =
+  tibble(
+    x = rnorm(30, mean = 1, sd = 1),
+    y = 2 + 3* x +rnorm(30, 0, 1)
+  )
+
+sim_df |>
+  ggplot(aes(x = x, y = y)) +
+  geom_point()
+
+slr_fit = lm (y ~ x, data = sim_df)
+
+coef(slr_fit)
+```
+
+```{r}
+sim_regression = function(n_subj, beta0 = 2, beta1 = 3) {
+  
+  sim_data = 
+    tibble(
+      x = rnorm(n_subj, mean = 1, sd = 1),
+      y = beta0 + beta1 * x + rnorm(n_subj, 0, 1)
+    )
+  
+  ls_fit = lm(y ~ x, data = sim_data)
+  
+  tibble(
+    beta0_hat = coef(ls_fit)[1],
+    beta1_hat = coef(ls_fit)[2]
+  )
+}
+
+```
+
+```{r}
+sim_regression(n_subj = 30)
+```
+
+```{r}
+output = vector("list", length = 500)
+
+for (i in 1:500) {
+  output[[i]] = sim_regression(n_subj = 30)
+}
+
+output |>
+  bind_rows()
+```
+
+```{r}
+slr_sim_results_df = 
+  expand_grid(
+    iter = 1:500,
+    sample_size = 30
+  ) |>
+  mutate(
+    results = map(sample_size, sim_regression)
+  ) |>
+  unnest(results)
+
+slr_sim_results_df |>
+  ggplot(aes(x = beta0_hat, y = beta1_hat)) +
+  geom_point()
+```
+
+example
+```{r}
+birthdays = sample(1:365, 5, replace = TRUE)
+
+length(unique(birthdays)) < 5
+```
+
